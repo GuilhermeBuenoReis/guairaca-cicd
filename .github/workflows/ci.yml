@@ -2,55 +2,56 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 jobs:
   ci:
     name: CI - Testes e validação
-    runs-on: ubunto-latest
-    steps: 
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Configurar node js
-        uses: actions/checkout-node@v4
-        with: 
-          node-versions: '20'
-        
-      - name: Instalar HTMLHint (linter html)
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar HTMLHint
         run: npm install -g htmlhint
 
-      - name: Validar sintaxe do html
-        run: htmlhlint index.html
-  
+      - name: Validar sintaxe do HTML
+        run: htmlhint index.html
+
   cd:
-    name: CD - Deploy no github pages
+    name: CD - Deploy no GitHub Pages
     needs: ci
     if: github.ref == 'refs/heads/main'
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
 
     environment:
-      - name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
-      
-        steps: 
-        - name: Checkout do código
-          uses: actions/checkout@v4
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-        - name: Empacotar artefato
-          uses: actions/upload-pages-artifact@v3
-          whith:
-            path: '.'
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-        - name: Publicar no Github pages
-          id: deployment
-          uses: actions/deploy-pages@v4
+      - name: Empacotar artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
