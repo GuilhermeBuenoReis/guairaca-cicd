@@ -32,25 +32,25 @@ jobs:
       - name: Validar sintaxe do html
         run: htmlhlint index.html
   
-cd:
-  name: CD - Deploy no github pages
-  needs: ci
-  if: github.ref == 'refs/heads/main'
-  runs-on: ubunto-latest
+  cd:
+    name: CD - Deploy no github pages
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubunto-latest
 
-  enviroment:
-    - name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
-      steps: 
-      - name: Checkout do código
-        uses: actions/checkout@v4
+    enviroment:
+      - name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+      
+        steps: 
+        - name: Checkout do código
+          uses: actions/checkout@v4
 
-      - name: Empacotar artefato
-        uses: actions/upload-pages-artifact@v3
-        whith:
-          path: '.'
+        - name: Empacotar artefato
+          uses: actions/upload-pages-artifact@v3
+          whith:
+            path: '.'
 
-      - name: Publicar no Github pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        - name: Publicar no Github pages
+          id: deployment
+          uses: actions/deploy-pages@v4
