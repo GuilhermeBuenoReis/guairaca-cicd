@@ -1,0 +1,56 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  ci:
+    name: CI - Testes e validação
+    runs-on: ubunto-latest
+    steps: 
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar node js
+        uses: actions/checkout-node@v4
+        with: 
+          node-versions: '20'
+        
+      - name: Instalar HTMLHint (linter html)
+        run: npm install -g htmlhint
+
+      - name: Validar sintaxe do html
+        run: htmlhlint index.html
+  
+cd:
+  name: CD - Deploy no github pages
+  needs: ci
+  if: github.ref == 'refs/heads/main'
+  runs-on: ubunto-latest
+
+  enviroment:
+    - name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+      steps: 
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Empacotar artefato
+        uses: actions/upload-pages-artifact@v3
+        whith:
+          path: '.'
+
+      - name: Publicar no Github pages
+        id: deployment
+        uses: actions/deploy-pages@v4
